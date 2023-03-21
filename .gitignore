@@ -85,7 +85,7 @@ data
 # *.ipr
 
 # CMake
-cmake-build-*
+cmake-build-*/
 
 ### CMake ###
 CMakeLists.txt.user

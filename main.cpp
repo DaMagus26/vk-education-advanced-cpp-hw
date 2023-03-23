@@ -10,12 +10,6 @@
 #include <iterator>
 
 
-struct Movie {
-  std::string language;
-  std::string title_name;
-  Movie() {};
-};
-
 template<class Out>
 void SplitString(const std::string &str, Out os, const char sep = '\t') {
   typedef std::string::const_iterator iter;
@@ -55,7 +49,7 @@ std::string FindActorId(const std::string &name, const std::string &path) {
   return "";
 }
 
-void FindAllMoviesWithActor(const std::string &nconst, const std::string &path, std::map<std::string, Movie> &titles) {
+void FindAllMoviesWithActor(const std::string &nconst, const std::string &path, std::map<std::string, std::string> &titles) {
   if (nconst.empty()) {
     return;
   }
@@ -73,14 +67,14 @@ void FindAllMoviesWithActor(const std::string &nconst, const std::string &path, 
       std::vector<std::string> columns;
       SplitString(line, std::back_inserter(columns));
       if (columns[2] == nconst && (columns[3] == "actor" || columns[3] == "actress")) {
-        titles.insert({columns[0], Movie()});
+        titles.insert({columns[0], ""});
       }
     }
   }
   input.close();
 }
 
-void DropUnratedMovies(std::map<std::string, Movie>& titles, const std::string &path) {
+void DropUnratedMovies(std::map<std::string, std::string>& titles, const std::string &path) {
   if (titles.empty()) {
     return;
   }
@@ -103,7 +97,7 @@ void DropUnratedMovies(std::map<std::string, Movie>& titles, const std::string &
   input.close();
 }
 
-void DropIrrelevantMovies(std::map<std::string, Movie>& titles, const std::string &path) {
+void DropIrrelevantMovies(std::map<std::string, std::string>& titles, const std::string &path) {
   if (titles.empty()) {
     return;
   }
@@ -124,14 +118,14 @@ void DropIrrelevantMovies(std::map<std::string, Movie>& titles, const std::strin
       if (!(columns[1] == "movie" || columns[1] == "tvMovie") || columns[4] == "1") {
         titles.erase(columns[0]);
       } else {
-        titles[columns[0]].title_name = columns[2];
+        titles[columns[0]] = columns[2];
       }
     }
   }
   input.close();
 }
 
-void GetLocalizedTitleNames(std::map<std::string, Movie>& titles, const std::string &path) {
+void GetLocalizedTitleNames(std::map<std::string, std::string>& titles, const std::string &path) {
   if (titles.empty()) {
     return;
   }
@@ -150,7 +144,7 @@ void GetLocalizedTitleNames(std::map<std::string, Movie>& titles, const std::str
     SplitString(line, std::back_inserter(columns));
     if (titles.find(columns[0]) != titles.end()) {
       if (columns[3] == "RU") {
-        titles[columns[0]].title_name = columns[2];
+        titles[columns[0]] = columns[2];
       }
     }
   }
@@ -172,7 +166,7 @@ int main(int argc, char **argv) {
     return 0;
   }
 
-  std::map<std::string, Movie> titles;
+  std::map<std::string, std::string> titles;
   FindAllMoviesWithActor(nconst, principals_path, titles);
   DropUnratedMovies(titles, reviews_path);
   DropIrrelevantMovies(titles, basics_path);
@@ -182,7 +176,7 @@ int main(int argc, char **argv) {
     std::cout << "There are no relevant movies, which starred " << actor_name << std::endl;
   } else {
     for (const auto& x: titles) {
-      std::cout << x.second.title_name << std::endl;
+      std::cout << x.second << std::endl;
     }
   }
 }

@@ -1,163 +1,62 @@
-// Launch configurations
-// "Safi Quadri" ../data/name.basics.tsv ../data/title.akas.tsv ../data/title.basics.tsv ../data/title.principals.tsv ../data/title.ratings.tsv
-
 #include <iostream>
-#include <fstream>
-#include <utility>
 #include <vector>
 #include <map>
-#include <chrono>
-#include <iterator>
+#include <boost/program_options.hpp>
+#include "parse_tables.h"
+#include "validations.h"
 
-
-template<class Out>
-void SplitString(const std::string &str, Out os, const char sep = '\t') {
-  typedef std::string::const_iterator iter;
-  auto not_sep = [sep](const char c) { return c != sep; };
-  auto is_sep = [sep](const char c) { return c == sep; };
-
-  iter i = str.begin();
-  while (i != str.end()) {
-    i = std::find_if(i, str.end(), not_sep);
-    iter j = std::find_if(i, str.end(), is_sep);
-    if (i != str.end()) {
-      *os++ = std::string(i, j);
-    }
-    i = j;
-  }
-}
-
-std::string FindActorId(const std::string &name, const std::string &path) {
-  std::ifstream input(path);
-  if (!input) {
-    std::cerr << "Invalid path: " << path << std::endl;
-    return "";
-  }
-
-  std::string line;
-  getline(input, line);
-  while (getline(input, line)) {
-    if (line.find(name)) {
-      std::vector<std::string> columns;
-      SplitString(line, std::back_inserter(columns));
-      if (columns[1] == name) {
-        return columns[0];
-      }
-    }
-  }
-  input.close();
-  return "";
-}
-
-void FindAllMoviesWithActor(const std::string &nconst, const std::string &path, std::map<std::string, std::string> &titles) {
-  if (nconst.empty()) {
-    return;
-  }
-
-  std::ifstream input(path);
-  if (!input) {
-    std::cerr << "Invalid path: " << path << std::endl;
-    return;
-  }
-
-  std::string line;
-  getline(input, line);
-  while (getline(input, line)) {
-    if (line.find(nconst) != std::string::npos) {
-      std::vector<std::string> columns;
-      SplitString(line, std::back_inserter(columns));
-      if (columns[2] == nconst && (columns[3] == "actor" || columns[3] == "actress")) {
-        titles.insert({columns[0], ""});
-      }
-    }
-  }
-  input.close();
-}
-
-void DropUnratedMovies(std::map<std::string, std::string>& titles, const std::string &path) {
-  if (titles.empty()) {
-    return;
-  }
-
-  std::ifstream input(path);
-  if (!input) {
-    std::cerr << "Invalid path: " << path << std::endl;
-    return;
-  }
-
-  std::string line;
-  getline(input, line);
-  while (getline(input, line)) {
-    std::vector<std::string> columns;
-    SplitString(line, std::back_inserter(columns));
-    if (titles.find(columns[0]) == titles.end() || std::stoi(columns[2]) < 1000) {
-      titles.erase(columns[0]);
-    }
-  }
-  input.close();
-}
-
-void DropIrrelevantMovies(std::map<std::string, std::string>& titles, const std::string &path) {
-  if (titles.empty()) {
-    return;
-  }
-
-  std::ifstream input(path);
-  if (!input) {
-    std::cerr << "Invalid path: " << path << std::endl;
-    return;
-  }
-
-  std::string line;
-  getline(input, line);
-  while (getline(input, line)) {
-
-    std::vector<std::string> columns;
-    SplitString(line, std::back_inserter(columns));
-    if (titles.find(columns[0]) != titles.end()) {
-      if (!(columns[1] == "movie" || columns[1] == "tvMovie") || columns[4] == "1") {
-        titles.erase(columns[0]);
-      } else {
-        titles[columns[0]] = columns[2];
-      }
-    }
-  }
-  input.close();
-}
-
-void GetLocalizedTitleNames(std::map<std::string, std::string>& titles, const std::string &path) {
-  if (titles.empty()) {
-    return;
-  }
-
-  std::ifstream input(path);
-  if (!input) {
-    std::cerr << "Invalid path: " << path << std::endl;
-    return;
-  }
-
-  std::string line;
-  getline(input, line);
-  while (getline(input, line)) {
-
-    std::vector<std::string> columns;
-    SplitString(line, std::back_inserter(columns));
-    if (titles.find(columns[0]) != titles.end()) {
-      if (columns[3] == "RU") {
-        titles[columns[0]] = columns[2];
-      }
-    }
-  }
-  input.close();
-}
 
 int main(int argc, char **argv) {
-  std::string actor_name = argv[1];
-  std::string name_basics_path = argv[2];
-  std::string akas_path = argv[3];
-  std::string basics_path = argv[4];
-  std::string principals_path = argv[5];
-  std::string reviews_path = argv[6];
+
+  po::options_description desc("Allowed options");
+  desc.add_options()
+      ("help", "produce help message")
+      ("name", po::value<std::string>(), "Name of the actor, that one is trying to find info about")
+      ("names_basics_path", po::value<std::string>(),
+          "Path to file, containing general information about people")
+      ("titles_akas_path", po::value<std::string>(),
+          "Path to file, containing aliases for the titles")
+      ("titles_basics_path", po::value<std::string>(),
+       "Path to file, containing basic information about the titles")
+      ("titles_principals_path", po::value<std::string>(),
+       "Path to file, containing information about principals of the titles")
+      ("titles_reviews_path", po::value<std::string>(),
+       "Path to file, containing information about ratings of the title");
+
+  po::variables_map vm;
+  po::store(po::parse_command_line(argc, argv, desc), vm);
+  po::notify(vm);
+
+  std::string actor_name;
+  std::string name_basics_path;
+  std::string akas_path;
+  std::string basics_path;
+  std::string principals_path;
+  std::string reviews_path;
+
+  if (!ValidateAndStore(vm, "name", actor_name)) {
+    return 0;
+  }
+
+  if (!ValidateAndStore(vm, "names_basics_path", name_basics_path)) {
+    return 0;
+  }
+
+  if (!ValidateAndStore(vm, "titles_akas_path", akas_path)) {
+    return 0;
+  }
+
+  if (!ValidateAndStore(vm, "titles_basics_path", basics_path)) {
+    return 0;
+  }
+
+  if (!ValidateAndStore(vm, "titles_principals_path", principals_path)) {
+    return 0;
+  }
+
+  if (!ValidateAndStore(vm, "titles_reviews_path", reviews_path)) {
+    return 0;
+  }
 
   std::string nconst = FindActorId(actor_name, name_basics_path);
 

@@ -1,16 +1,5 @@
 // Launch configurations
-// "Safi Quadri" ../data/name.basics.tsv ../data/title.akas.tsv ../data/title.basics.tsv ../data/title.crew.tsv ../data/title.episode.tsv ../data/title.principals.tsv ../data/title.ratings.tsv
-
-
-//auto start = std::chrono::high_resolution_clock::now();
-//
-//counter++;
-//if (counter % 10000000 == 0) {
-//auto stop = std::chrono::high_resolution_clock::now();
-//auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-//std::cout << counter << " rows (" << static_cast<double>(duration.count()) / 1000 << " seconds, speed: " << 10000000000.0 / duration.count() << " rows/sec)" << std::endl;
-//start = stop;
-//}
+// "Safi Quadri" ../data/name.basics.tsv ../data/title.akas.tsv ../data/title.basics.tsv ../data/title.principals.tsv ../data/title.ratings.tsv
 
 #include <iostream>
 #include <fstream>
@@ -79,8 +68,6 @@ void FindAllMoviesWithActor(const std::string &nconst, const std::string &path, 
 
   std::string line;
   getline(input, line);
-  auto start = std::chrono::high_resolution_clock::now();
-  int counter = 0;
   while (getline(input, line)) {
     if (line.find(nconst) != std::string::npos) {
       std::vector<std::string> columns;
@@ -88,14 +75,6 @@ void FindAllMoviesWithActor(const std::string &nconst, const std::string &path, 
       if (columns[2] == nconst && (columns[3] == "actor" || columns[3] == "actress")) {
         titles.insert({columns[0], Movie()});
       }
-    }
-
-    counter++;
-    if (counter % 10000000 == 0) {
-      auto stop = std::chrono::high_resolution_clock::now();
-      auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-      std::cout << counter << " rows (" << static_cast<double>(duration.count()) / 1000 << " seconds, speed: " << 10000000000.0 / duration.count() << " rows/sec)" << std::endl;
-      start = stop;
     }
   }
   input.close();
@@ -112,24 +91,13 @@ void DropUnratedMovies(std::map<std::string, Movie>& titles, const std::string &
     return;
   }
 
-  std::cout << "Starting \"DropUnratedMovies\"" << std::endl;
   std::string line;
   getline(input, line);
-  auto start = std::chrono::high_resolution_clock::now();
-  int counter = 0;
   while (getline(input, line)) {
     std::vector<std::string> columns;
     SplitString(line, std::back_inserter(columns));
     if (titles.find(columns[0]) == titles.end() || std::stoi(columns[2]) < 1000) {
       titles.erase(columns[0]);
-    }
-
-    counter++;
-    if (counter % 10000000 == 0) {
-      auto stop = std::chrono::high_resolution_clock::now();
-      auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-      std::cout << counter << " rows (" << static_cast<double>(duration.count()) / 1000 << " seconds, speed: " << 10000000000.0 / duration.count() << " rows/sec)" << std::endl;
-      start = stop;
     }
   }
   input.close();
@@ -146,11 +114,8 @@ void DropIrrelevantMovies(std::map<std::string, Movie>& titles, const std::strin
     return;
   }
 
-  std::cout << "Starting \"DropIrrelevantMovies\"" << std::endl;
   std::string line;
   getline(input, line);
-  auto start = std::chrono::high_resolution_clock::now();
-  int counter = 0;
   while (getline(input, line)) {
 
     std::vector<std::string> columns;
@@ -161,14 +126,6 @@ void DropIrrelevantMovies(std::map<std::string, Movie>& titles, const std::strin
       } else {
         titles[columns[0]].title_name = columns[2];
       }
-    }
-
-    counter++;
-    if (counter % 10000000 == 0) {
-      auto stop = std::chrono::high_resolution_clock::now();
-      auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-      std::cout << counter << " rows (" << static_cast<double>(duration.count()) / 1000 << " seconds, speed: " << 10000000000.0 / duration.count() << " rows/sec)" << std::endl;
-      start = stop;
     }
   }
   input.close();
@@ -185,11 +142,8 @@ void GetLocalizedTitleNames(std::map<std::string, Movie>& titles, const std::str
     return;
   }
 
-  std::cout << "Starting \"GetLocalizedTitleNames\"" << std::endl;
   std::string line;
   getline(input, line);
-  auto start = std::chrono::high_resolution_clock::now();
-  int counter = 0;
   while (getline(input, line)) {
 
     std::vector<std::string> columns;
@@ -211,7 +165,13 @@ int main(int argc, char **argv) {
   std::string principals_path = argv[5];
   std::string reviews_path = argv[6];
 
-  std::string nconst = FindActorId(actor_name, name_basics_path); // "nm0642253"
+  std::string nconst = FindActorId(actor_name, name_basics_path);
+
+  if (nconst.empty()) {
+    std::cout << "Unknown actor: " << actor_name << std::endl;
+    return 0;
+  }
+
   std::map<std::string, Movie> titles;
   FindAllMoviesWithActor(nconst, principals_path, titles);
   DropUnratedMovies(titles, reviews_path);

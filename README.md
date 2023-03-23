@@ -10,6 +10,53 @@
 Программа не должна брать в расчет фильмы для взрослых, и, если в варианте используется рейтинг, не должна учитывать
 рейтинг фильмов с числом оценок меньше 1000.
 
+
+## Запуск программы
+Для запуска программы у себя выполните следующие шаги:
+
+1. Клонируйте репозиторий в свою директорию:
+```shell
+git clone https://github.com/DaMagus26/vk-education-advanced-cpp-hw1.git
+```
+2. Убедитесь, что у вас загружены данные о кинокартинах с [сайта IMDB](https://datasets.imdbws.com/). Каждую таблицу можно скачать командой:
+```shell
+wget https://datasets.imdbws.com/title.basics.tsv.gz
+```
+Полученные файлы нужно распаковать
+```shell
+gunzip title.basics.tsv
+```
+3. Программа использует библиотеку Boost и сборщик CMake. Убедитесь, что она у вас загружена. Скачать библиотеку на Linux/Mac можно командой
+```shell
+brew install boost
+brew install cmake
+```
+или
+```shell
+sudo apt-get install libboost-all-dev
+sudo apt-get install cmake
+```
+4. Соберите приложение. Для этого выполните следующие команды:
+```shell
+mkdir build
+cd build
+cmake ..
+cmake --build .
+```
+5. Запустите программу. Исполняемый файл находится в директории build. Программа принимает на вход 6 именованных аргументов
+   - **--name**: имя актера, фильмографию которого вы хотите найти
+   - **--names_basics_path**: таблица с данными об именах (names.basics.tsv)
+   - **--titles_akas_path**: таблица с данными о локализации картин (titles.akas.tsv)
+   - **--titles_basics_path**: таблица с общими данными о картинах (titles.basics.tsv)
+   - **--titles_principals_path**: таблица с данными о создателях картин (titles.principals.tsv)
+   - **--titles_reviews_path**: таблица с данными об отзывах картин (titles.reviews.tsv)
+
+Пример команды запуска:
+```shell
+./searchtitles --name="Safi Quadri" --names_basics_path=../data/name.basics.tsv --titles_akas_path=../data/title.akas.tsv --titles_basics_path=../data/title.basics.tsv --titles_principals_path=../data/title.principals.tsv --titles_reviews_path=../data/title.ratings.tsv
+```
+   
+
 ## Описание данных
 ![Диаграмма таблиц](images/tables.png?raw=true)
 

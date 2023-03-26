@@ -8,7 +8,7 @@
 std::map<std::string, std::string> ParseCmdLineOptions(int argc, const char** argv) {
   std::map<std::string, std::string> params;
 
-  for (int i = 1; i < argc; i++) {
+  for (int i = 1; i < argc; ++i) {
     const std::string par(argv[i]);
     if (par.rfind("--", 0) == 0) {
        std::vector<std::string> par_key_value;

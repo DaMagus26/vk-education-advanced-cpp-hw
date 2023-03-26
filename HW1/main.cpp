@@ -17,35 +17,20 @@ int main(int argc, const char **argv) {
   std::string principals_path;
   std::string reviews_path;
 
-  if (!ValidateAndStore(cmd_arguments, "name", actor_name)) {
-    return 0;
-  }
-
-  if (!ValidateAndStore(cmd_arguments, "names_basics_path", name_basics_path)) {
-    return 0;
-  }
-
-  if (!ValidateAndStore(cmd_arguments, "titles_akas_path", akas_path)) {
-    return 0;
-  }
-
-  if (!ValidateAndStore(cmd_arguments, "titles_basics_path", basics_path)) {
-    return 0;
-  }
-
-  if (!ValidateAndStore(cmd_arguments, "titles_principals_path", principals_path)) {
-    return 0;
-  }
-
-  if (!ValidateAndStore(cmd_arguments, "titles_reviews_path", reviews_path)) {
-    return 0;
+  if (!ValidateAndStore(cmd_arguments, "name", actor_name) ||
+      !ValidateAndStore(cmd_arguments, "names_basics_path", name_basics_path) ||
+      !ValidateAndStore(cmd_arguments, "titles_akas_path", akas_path) ||
+      !ValidateAndStore(cmd_arguments, "titles_basics_path", basics_path) ||
+      !ValidateAndStore(cmd_arguments, "titles_principals_path", principals_path) ||
+      !ValidateAndStore(cmd_arguments, "titles_reviews_path", reviews_path)) {
+    return 1;
   }
 
   std::string nconst = FindActorId(actor_name, name_basics_path);
 
   if (nconst.empty()) {
     std::cout << "Unknown actor: " << actor_name << std::endl;
-    return 0;
+    return 1;
   }
 
   std::map<std::string, std::string> titles;

@@ -23,6 +23,7 @@ int main(int argc, const char **argv) {
       !ValidateAndStore(cmd_arguments, "titles_basics_path", basics_path) ||
       !ValidateAndStore(cmd_arguments, "titles_principals_path", principals_path) ||
       !ValidateAndStore(cmd_arguments, "titles_reviews_path", reviews_path)) {
+    std::cerr << "Invalid arguments" << std::endl;
     return 1;
   }
 
@@ -30,7 +31,7 @@ int main(int argc, const char **argv) {
 
   if (nconst.empty()) {
     std::cout << "Unknown actor: " << actor_name << std::endl;
-    return 1;
+    return 0;
   }
 
   std::map<std::string, std::string> titles;

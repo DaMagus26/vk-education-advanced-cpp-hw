@@ -62,7 +62,7 @@ Aadab Hyderabad
 **Внимание:** в зависимости от количества данных прогромма может работать вплоть до 10 минт. Никаких отладочных данных в это время не выводится.
 
 ## Описание данных
-![Диаграмма таблиц](images/tables.png?raw=true)
+![](images/tables.png)
 
 1. **name.basics.tsv** – информация о людях
    - nconst (string) - alphanumeric unique identifier of the name/person

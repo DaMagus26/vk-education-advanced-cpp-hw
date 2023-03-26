@@ -50,6 +50,14 @@ cmake --build .
 ```shell
 ./searchtitles --name="Safi Quadri" --names_basics_path=../data/name.basics.tsv --titles_akas_path=../data/title.akas.tsv --titles_basics_path=../data/title.basics.tsv --titles_principals_path=../data/title.principals.tsv --titles_reviews_path=../data/title.ratings.tsv
 ```
+
+Вывод:
+```shell
+Best of Luck
+Shaadi Express
+Half fry
+Aadab Hyderabad
+```
    
 **Внимание:** в зависимости от количества данных прогромма может работать вплоть до 10 минт. Никаких отладочных данных в это время не выводится.
 

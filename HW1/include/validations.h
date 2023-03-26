@@ -1,8 +1,7 @@
 #pragma once
 
-#include <boost/program_options.hpp>
 #include <iostream>
+#include <map>
+#include <string>
 
-namespace po = boost::program_options;
-
-bool ValidateAndStore(const po::variables_map& vm, const std::string& field, std::string& storage);
+bool ValidateAndStore(std::map<std::string, std::string>& vm, const std::string& field, std::string& storage);

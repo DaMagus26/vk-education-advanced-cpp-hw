@@ -1,31 +1,14 @@
 #include <iostream>
 #include <vector>
 #include <map>
-#include <boost/program_options.hpp>
 #include "parse_tables.h"
 #include "validations.h"
+#include "argparse.h"
 
 
-int main(int argc, char **argv) {
+int main(int argc, const char **argv) {
 
-  po::options_description desc("Allowed options");
-  desc.add_options()
-      ("help", "produce help message")
-      ("name", po::value<std::string>(), "Name of the actor, that one is trying to find info about")
-      ("names_basics_path", po::value<std::string>(),
-          "Path to file, containing general information about people")
-      ("titles_akas_path", po::value<std::string>(),
-          "Path to file, containing aliases for the titles")
-      ("titles_basics_path", po::value<std::string>(),
-       "Path to file, containing basic information about the titles")
-      ("titles_principals_path", po::value<std::string>(),
-       "Path to file, containing information about principals of the titles")
-      ("titles_reviews_path", po::value<std::string>(),
-       "Path to file, containing information about ratings of the title");
-
-  po::variables_map vm;
-  po::store(po::parse_command_line(argc, argv, desc), vm);
-  po::notify(vm);
+  auto cmd_arguments = ParseCmdLineOptions(argc, argv);
 
   std::string actor_name;
   std::string name_basics_path;
@@ -34,27 +17,27 @@ int main(int argc, char **argv) {
   std::string principals_path;
   std::string reviews_path;
 
-  if (!ValidateAndStore(vm, "name", actor_name)) {
+  if (!ValidateAndStore(cmd_arguments, "name", actor_name)) {
     return 0;
   }
 
-  if (!ValidateAndStore(vm, "names_basics_path", name_basics_path)) {
+  if (!ValidateAndStore(cmd_arguments, "names_basics_path", name_basics_path)) {
     return 0;
   }
 
-  if (!ValidateAndStore(vm, "titles_akas_path", akas_path)) {
+  if (!ValidateAndStore(cmd_arguments, "titles_akas_path", akas_path)) {
     return 0;
   }
 
-  if (!ValidateAndStore(vm, "titles_basics_path", basics_path)) {
+  if (!ValidateAndStore(cmd_arguments, "titles_basics_path", basics_path)) {
     return 0;
   }
 
-  if (!ValidateAndStore(vm, "titles_principals_path", principals_path)) {
+  if (!ValidateAndStore(cmd_arguments, "titles_principals_path", principals_path)) {
     return 0;
   }
 
-  if (!ValidateAndStore(vm, "titles_reviews_path", reviews_path)) {
+  if (!ValidateAndStore(cmd_arguments, "titles_reviews_path", reviews_path)) {
     return 0;
   }
 

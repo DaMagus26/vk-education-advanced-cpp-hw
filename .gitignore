@@ -1,7 +1,10 @@
 # Created by https://www.toptal.com/developers/gitignore/api/clion,cmake,c++,macos
 # Edit at https://www.toptal.com/developers/gitignore?templates=clion,cmake,c++,macos
 
-/data
+*/data
+*.tsv
+*.orig
+.idea
 
 ### C++ ###
 # Prerequisites

@@ -4,6 +4,7 @@
 #include "parse_tables.h"
 #include "validations.h"
 #include "argparse.h"
+#include "output.h"
 
 
 int main(int argc, const char **argv) {
@@ -39,11 +40,5 @@ int main(int argc, const char **argv) {
   DropIrrelevantMovies(titles, basics_path);
   GetLocalizedTitleNames(titles, akas_path);
 
-  if (titles.empty()) {
-    std::cout << "There are no relevant movies, which starred " << actor_name << std::endl;
-  } else {
-    for (const auto& x: titles) {
-      std::cout << x.second << std::endl;
-    }
-  }
+  PrintResult(titles, actor_name);
 }

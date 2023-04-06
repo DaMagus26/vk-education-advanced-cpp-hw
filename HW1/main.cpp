@@ -5,9 +5,10 @@
 #include "validations.h"
 #include "argparse.h"
 #include "output.h"
-
+#include "chrono"
 
 int main(int argc, const char **argv) {
+//  auto start = std::chrono::high_resolution_clock::now();
   auto cmd_arguments = ParseCmdLineOptions(argc, argv);
 
   std::string actor_name;
@@ -41,4 +42,7 @@ int main(int argc, const char **argv) {
   GetLocalizedTitleNames(titles, akas_path);
 
   PrintResult(titles, actor_name);
+//  auto stop = std::chrono::high_resolution_clock::now();
+//  auto duration = duration_cast<std::chrono::seconds>(stop - start);
+//  std::cout << static_cast<int>(duration.count() / 60) << ":" << duration.count() % 60 << std::endl;
 }

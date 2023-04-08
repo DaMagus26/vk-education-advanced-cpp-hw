@@ -2,6 +2,10 @@
 #include <algorithm>
 #include <iostream>
 
+#include <stack>
+#include <queue>
+#include <cstdlib>
+
 bool isSpace(const char c) {
   return c == ' ';
 }
@@ -23,7 +27,7 @@ bool isTextOperator(const std::string& str) {
   return std::find(operators.begin(), operators.end(), str) != operators.end();
 }
 
-std::vector<std::string> tokenizeString(const std::string &str) {
+std::vector<std::string> tokenizeExpressionString(const std::string &str) {
   std::vector<std::string> result{};
   auto i = str.begin();
 
@@ -61,4 +65,30 @@ std::vector<std::string> tokenizeString(const std::string &str) {
   }
 
   return result;
+}
+
+bool isValidOperand(const std::string& op) {
+  // FIXME
+  if (op.empty()) {
+    return false;
+  }
+
+  char* end_ptr;
+  double result = strtod(op.c_str(), &end_ptr);
+  return !(op.c_str() == end_ptr && result == 0.0);
+}
+
+double solver(const std::vector<std::string>& tokens) {
+  std::stack<std::string> operators;
+  std::queue<double> operands;
+  for (const auto& token: tokens) {
+    if (isValidOperand(token)) {
+      char* end_ptr;
+      double result = strtod(token.c_str(), &end_ptr);
+      operands.push(result);
+    } else if (token == "(") {
+      operators.push(token);
+    }
+  }
+  return 0;
 }

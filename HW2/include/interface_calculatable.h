@@ -2,5 +2,6 @@
 
 class ICalculatable {
  public:
-  virtual double Calculate() = 0;
+  virtual double calculate() const = 0;
+  ~ICalculatable() = default;;
 };

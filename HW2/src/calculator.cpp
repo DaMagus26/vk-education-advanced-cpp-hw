@@ -1,8 +1,10 @@
 #include "../include/calculator.h"
-#include "../include/operations.h"
+#include "../include/calc_exception.h"
 #include <string>
 #include <memory>
 #include <vector>
+#include <stack>
+#include <regex>
 
 Calculator::Calculator(const std::string &str) {
   if (str.empty()) {
@@ -11,7 +13,8 @@ Calculator::Calculator(const std::string &str) {
   }
 
   std::vector<std::string> tokens = tokenizeExpression(str);
-  root = buildTree(tokens);
+  std::vector<std::string> postfix = postfixNotation(tokens);
+  root = buildTree(postfix);
 }
 
 double Calculator::calculate() const {
@@ -39,6 +42,11 @@ bool Calculator::isTextOperator(const std::string& str) {
   return std::find(operators.begin(), operators.end(), str) != operators.end();
 }
 
+bool Calculator::isValidDouble(const std::string &op) {
+  std::regex double_pattern{"[-+]?[0-9]*\\.?[0-9]+"};
+  return std::regex_match(op.begin(), op.end(), double_pattern);
+}
+
 std::vector<std::string> Calculator::tokenizeExpression(const std::string &str) {
   std::vector<std::string> result{};
   auto i = str.begin();
@@ -51,7 +59,7 @@ std::vector<std::string> Calculator::tokenizeExpression(const std::string &str) 
         result.emplace_back(i, j);
         i = j;
 
-      } else if (isDotNum(*i)) {
+      } else if (isOperator(*i)) {
         result.push_back({*i});
         ++i;
 
@@ -61,15 +69,11 @@ std::vector<std::string> Calculator::tokenizeExpression(const std::string &str) 
           result.emplace_back(i, j);
           i = j;
         } else {
-          // TODO Exception
-//          std::cerr << "Unexpected symbol: " << std::string(i, j) << std::endl;
-          break;
+          throw ParseError("Unexpected symbol: " + std::string(i, j));
         }
 
       } else {
-        // TODO Exception
-//        std::cerr << "Unexpected symbol: " << *i << std::endl;
-        break;
+        throw ParseError(&"Unexpected symbol: " [ *i]);
       }
     } else {
       ++i;
@@ -79,6 +83,90 @@ std::vector<std::string> Calculator::tokenizeExpression(const std::string &str) 
   return result;
 }
 
+std::vector<std::string> Calculator::postfixNotation(const std::vector<std::string> &tokens) {
+  std::vector<std::string> postfix;
+  std::stack<std::string> opStack;
+  std::map<std::string, int> precedence = {
+      {"(", 0},
+      {")", 0},
+      {"+", 1},
+      {"-", 1},
+      {"*", 2},
+      {"sqrt", 3},
+      {"ceil", 3}
+  };
+
+  for (const std::string& token : tokens) {
+    if (precedence.count(token) == 0) { // Operand
+      postfix.push_back(token);
+    } else if (token == "(") { // Opening parenthesis
+      opStack.push(token);
+    } else if (token == ")") { // Closing parenthesis
+      while (!opStack.empty() && opStack.top() != "(") {
+        postfix.push_back(opStack.top());
+        opStack.pop();
+      }
+      if (!opStack.empty() && opStack.top() == "(") {
+        opStack.pop();
+      }
+    } else { // Operator
+      while (!opStack.empty() && precedence[opStack.top()] >= precedence[token]) {
+        postfix.push_back(opStack.top());
+        opStack.pop();
+      }
+      opStack.push(token);
+    }
+  }
+
+  while (!opStack.empty()) {
+    postfix.push_back(opStack.top());
+    opStack.pop();
+  }
+
+  return postfix;
+}
+
 std::unique_ptr<ICalculatable> Calculator::buildTree(const std::vector<std::string> &tokens) {
-  return nullptr;
+  std::stack<std::unique_ptr<ICalculatable>> stack;
+
+  for (const auto& token : tokens) {
+    if (isValidDouble(token)) {
+      stack.push(std::make_unique<Number>(std::stod(token)));
+    } else {
+      if (token == "+") {
+        auto right = std::move(stack.top());
+        stack.pop();
+        auto left = std::move(stack.top());
+        stack.pop();
+        stack.push(std::make_unique<Add>(*left, *right));
+
+      } else if (token == "-") {
+        auto right = std::move(stack.top());
+        stack.pop();
+        auto left = std::move(stack.top());
+        stack.pop();
+        stack.push(std::make_unique<Sub>(*left, *right));
+
+      } else if (token == "*") {
+        auto right = std::move(stack.top());
+        stack.pop();
+        auto left = std::move(stack.top());
+        stack.pop();
+        stack.push(std::make_unique<Mul>(*left, *right));
+
+      } else if (token == "sqrt") {
+        auto right = std::move(stack.top());
+        stack.pop();
+        stack.push(std::make_unique<Sqrt>(*right));
+
+      } else if (token == "ceil") {
+        auto right = std::move(stack.top());
+        stack.pop();
+        stack.push(std::make_unique<Ceil>(*right));
+
+      }
+    }
+  }
+
+  return std::move(stack.top());
 }

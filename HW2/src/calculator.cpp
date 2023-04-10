@@ -13,6 +13,7 @@
 #include <vector>
 #include <stack>
 #include <regex>
+#include <iostream>
 
 Calculator::Calculator(const std::string &str) {
   if (str.empty()) {
@@ -20,9 +21,14 @@ Calculator::Calculator(const std::string &str) {
     return;
   }
 
-  std::vector<std::string> tokens = tokenizeExpression(str);
-  std::vector<std::string> postfix = postfixNotation(tokens);
-  root = buildTree(postfix);
+  try {
+    std::vector<std::string> tokens = tokenizeExpression(str);
+    std::vector<std::string> postfix = postfixNotation(tokens);
+    root = buildTree(postfix);
+  } catch (const ParseError& e) {
+    std::cerr << "Error: " << e.what() << std::endl;
+    exit(1);
+  }
 }
 
 double Calculator::calculate() const {

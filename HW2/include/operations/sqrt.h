@@ -2,7 +2,7 @@
 #include "../interface_calculatable.h"
 #include <memory>
 
-class Sqrt : public ICalculatable {
+class Sqrt final : public ICalculatable {
  public:
   Sqrt() = delete;
 

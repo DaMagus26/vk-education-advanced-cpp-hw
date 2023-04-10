@@ -2,7 +2,7 @@
 #include "../interface_calculatable.h"
 #include <memory>
 
-class Sub : public ICalculatable {
+class Sub final : public ICalculatable {
  public:
   Sub() = delete;
   Sub(const ICalculatable& l, const ICalculatable& r);

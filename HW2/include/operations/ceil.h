@@ -2,7 +2,7 @@
 #include "../interface_calculatable.h"
 #include <memory>
 
-class Ceil : public ICalculatable {
+class Ceil final : public ICalculatable {
  public:
   Ceil() = delete;
   explicit Ceil(const ICalculatable& l);

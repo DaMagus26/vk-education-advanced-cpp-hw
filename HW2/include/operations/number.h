@@ -2,7 +2,7 @@
 #include "../interface_calculatable.h"
 #include <memory>
 
-class Number : public ICalculatable {
+class Number final : public ICalculatable {
  public:
   Number() = delete;
   explicit Number(double);

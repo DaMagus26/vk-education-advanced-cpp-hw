@@ -1,5 +1,12 @@
 #include "../include/calculator.h"
 #include "../include/calc_exception.h"
+#include "../include/interface_calculatable.h"
+#include "../include/operations/number.h"
+#include "../include/operations/add.h"
+#include "../include/operations/sub.h"
+#include "../include/operations/mul.h"
+#include "../include/operations/sqrt.h"
+#include "../include/operations/ceil.h"
 #include <string>
 #include <memory>
 #include <vector>

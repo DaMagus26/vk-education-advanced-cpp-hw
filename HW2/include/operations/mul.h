@@ -2,7 +2,7 @@
 #include "../interface_calculatable.h"
 #include <memory>
 
-class Mul : public ICalculatable {
+class Mul final : public ICalculatable {
  public:
   Mul() = delete;
   Mul(const ICalculatable& l, const ICalculatable& r);

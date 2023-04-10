@@ -7,6 +7,7 @@
 #include "../include/operations/mul.h"
 #include "../include/operations/sqrt.h"
 #include "../include/operations/ceil.h"
+#include "../include/factory_functions.h"
 #include <string>
 #include <memory>
 #include <vector>
@@ -90,18 +91,9 @@ std::vector<std::string> Calculator::tokenizeExpression(const std::string &str) 
   return result;
 }
 
-std::vector<std::string> Calculator::postfixNotation(const std::vector<std::string> &tokens) {
+std::vector<std::string> Calculator::postfixNotation(const std::vector<std::string> &tokens) const {
   std::vector<std::string> postfix;
   std::stack<std::string> opStack;
-  std::map<std::string, int> precedence = {
-      {"(", 0},
-      {")", 0},
-      {"+", 1},
-      {"-", 1},
-      {"*", 2},
-      {"sqrt", 3},
-      {"ceil", 3}
-  };
 
   for (const std::string& token : tokens) {
     if (precedence.count(token) == 0) { // Operand
@@ -117,7 +109,7 @@ std::vector<std::string> Calculator::postfixNotation(const std::vector<std::stri
         opStack.pop();
       }
     } else { // Operator
-      while (!opStack.empty() && precedence[opStack.top()] >= precedence[token]) {
+      while (!opStack.empty() && precedence.at(opStack.top()) >= precedence.at(token)) {
         postfix.push_back(opStack.top());
         opStack.pop();
       }
@@ -133,45 +125,14 @@ std::vector<std::string> Calculator::postfixNotation(const std::vector<std::stri
   return postfix;
 }
 
-std::unique_ptr<ICalculatable> Calculator::buildTree(const std::vector<std::string> &tokens) {
+std::unique_ptr<ICalculatable> Calculator::buildTree(const std::vector<std::string> &tokens) const {
   std::stack<std::unique_ptr<ICalculatable>> stack;
 
   for (const auto& token : tokens) {
     if (isValidDouble(token)) {
       stack.push(std::make_unique<Number>(std::stod(token)));
     } else {
-      if (token == "+") {
-        auto right = std::move(stack.top());
-        stack.pop();
-        auto left = std::move(stack.top());
-        stack.pop();
-        stack.push(std::make_unique<Add>(*left, *right));
-
-      } else if (token == "-") {
-        auto right = std::move(stack.top());
-        stack.pop();
-        auto left = std::move(stack.top());
-        stack.pop();
-        stack.push(std::make_unique<Sub>(*left, *right));
-
-      } else if (token == "*") {
-        auto right = std::move(stack.top());
-        stack.pop();
-        auto left = std::move(stack.top());
-        stack.pop();
-        stack.push(std::make_unique<Mul>(*left, *right));
-
-      } else if (token == "sqrt") {
-        auto right = std::move(stack.top());
-        stack.pop();
-        stack.push(std::make_unique<Sqrt>(*right));
-
-      } else if (token == "ceil") {
-        auto right = std::move(stack.top());
-        stack.pop();
-        stack.push(std::make_unique<Ceil>(*right));
-
-      }
+       factory.at(token)(stack);
     }
   }
 

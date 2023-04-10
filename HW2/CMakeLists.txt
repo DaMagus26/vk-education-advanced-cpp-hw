@@ -10,4 +10,4 @@ add_executable(HW2 main.cpp src/calculator.cpp include/calculator.h include/calc
         include/operations/mul.h src/opreations/mul.cpp
         include/operations/sqrt.h src/opreations/sqrt.cpp
         include/operations/ceil.h src/opreations/ceil.cpp
-        )
+        include/factory_functions.h src/factory_functions.cpp)
